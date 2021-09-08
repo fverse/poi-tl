@@ -167,8 +167,12 @@ public class NiceXWPFDocument extends XWPFDocument {
     public IdenifierManagerWrapper getDocPrIdenifierManager() {
         return idenifierManagerWrapper;
     }
+    
+	public void setIdenifierManagerWrapper(IdenifierManagerWrapper idenifierManagerWrapper) {
+		this.idenifierManagerWrapper = idenifierManagerWrapper;
+	}
 
-    public BigInteger addNewNumberingId(NumberingFormat numFmt) {
+	public BigInteger addNewNumberingId(NumberingFormat numFmt) {
         return addNewMultiLevelNumberingId(numFmt);
     }
 

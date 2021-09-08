@@ -28,6 +28,7 @@ import com.deepoove.poi.config.Configure;
 import com.deepoove.poi.data.DocxRenderData;
 import com.deepoove.poi.exception.RenderException;
 import com.deepoove.poi.render.RenderContext;
+import com.deepoove.poi.xwpf.IdenifierManagerWrapper;
 import com.deepoove.poi.xwpf.NiceXWPFDocument;
 
 /**
@@ -51,7 +52,7 @@ public class DocxRenderPolicy extends AbstractRenderPolicy<DocxRenderData> {
     public void doRender(RenderContext<DocxRenderData> context) throws Exception {
         NiceXWPFDocument doc = context.getXWPFDocument();
         XWPFTemplate template = context.getTemplate();
-        doc = doc.merge(new XWPFDocumentIterator(context.getData(), context.getConfig()), context.getRun());
+        doc = doc.merge(new XWPFDocumentIterator(context.getData(), context.getConfig(), doc.getDocPrIdenifierManager()), context.getRun());
         template.reload(doc);
     }
 
@@ -62,14 +63,16 @@ public class DocxRenderPolicy extends AbstractRenderPolicy<DocxRenderData> {
         private byte[] bytes;
         private List<?> datas;
         private int length;
+        private IdenifierManagerWrapper idenifierManagerWrapper;
 
         int cursor = 0;
 
-        XWPFDocumentIterator(DocxRenderData data, Configure config) {
+        XWPFDocumentIterator(DocxRenderData data, Configure config, IdenifierManagerWrapper idenifierManagerWrapper) {
             this.bytes = data.getMergedDoc();
             this.datas = data.getDataModels();
             this.config = config;
             this.length = null == this.datas ? 1 : this.datas.size();
+            this.idenifierManagerWrapper = idenifierManagerWrapper;
         }
 
         @Override
@@ -91,7 +94,9 @@ public class DocxRenderPolicy extends AbstractRenderPolicy<DocxRenderData> {
                 // TODO performance, should compile template only once?
                 XWPFTemplate temp = XWPFTemplate.compile(new ByteArrayInputStream(bytes), config);
                 temp.render(datas.get(cursor++));
-                return temp.getXWPFDocument();
+                NiceXWPFDocument document = temp.getXWPFDocument();
+                document.setIdenifierManagerWrapper(idenifierManagerWrapper);
+                return document;
             }
 
         }
